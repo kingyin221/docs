@@ -1,1 +1,2 @@
-# EasyCache 入门指南
+## 简易Demo
+
