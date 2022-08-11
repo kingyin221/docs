@@ -1,2 +1,2 @@
 - [EasyCache](easycache/index "官方文档")
-- [学习笔记](study "日常学习")
+- [学习笔记](study/index "日常学习")
