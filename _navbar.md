@@ -1,4 +1,5 @@
 - [博客](http://www.kingyin.club)
-- 文档
-  - [Gitee](https://kingyinos.gitee.io/docs)
-  - [Github](https://kingyin221.github.io/docs)
+- 站点
+  - [国内-Gitee](https://kingyinos.gitee.io/docs)
+  - [国外-Github](https://kingyin221.github.io/docs)
+
