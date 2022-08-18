@@ -1,5 +1,5 @@
 - [博客](http://www.kingyin.club)
 - 站点
-  - [国内-Gitee](https://kingyinos.gitee.io/docs)
-  - [国外-Github](https://kingyin221.github.io/docs)
-
+  - [Gitee](https://kingyinos.gitee.io/docs)
+  - [Github](https://kingyin221.github.io/docs)
+- [基础知识](http://www.cyc2018.xyz)
