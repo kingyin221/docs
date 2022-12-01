@@ -1,50 +1,147 @@
-## 简介
+# EasyCache 方式快速入门
 
-​	EasyCache简易缓存框架，注解风格解决绝大部分缓存需求，支持接入Spring，一般项目等，拥有高度阶段性定制功能，快来使用吧，Gitee点赞！
+本文档将演示如何应用 EasyCache 在Java项目进行缓存增强。 本例将在本地Maven项目中创建测试类并完成缓存查询和更新操作。
 
-![logo](image/index/easycache-logo.png)
+## 创建工程
 
-​	虽然EasyCache刚刚发布，但在它未诞生之前，EasyCache就有了一个相对稳定的雏形，在我开发毕业设计的同时EasyCacheV0.0.0版本就开始着手构建，经过简单的测试发现可用性很强，自此缓存化变得更为简单可靠。
+需要安装 JDK 8 及以上 和 Maven 3 以上
 
-## 自动代理
+新建一个Maven工程，并引入EasyCache依赖
 
-​	无需修改代码逻辑结构，基于代理缓存实现，仅需在原有方法添加EasyCache相关注解即可~
-
-## 多维度Key
-
-![引擎](image/index/key.png)
-
-​	基于**【模块】**， **【方法】**，**【参数】**三个维度设计缓存Key，保证缓存数据同步，方便管理。
-
-```apl
-模块：ky-file
-方法：ikWords
-参数：name=word
-# 默认 key 结构如下
--------------------------------
-ky-file:ikWords&{"name":"word"}
+```
+<dependency>
+    <groupId>club.kingyin</groupId>
+    <artifactId>easycache</artifactId>
+    <version>1.0.3</version>
+</dependency>
 ```
 
-​	对于微服务而言，组成缓存Key的【模块】部分显得尤为重要，在二级缓存中支撑了本地+远程同步，其次方法名和方法参数配合模块共同组建了缓存Key。
+注：最新版本可用从 https://gitee.com/kingyinOS/easycache/releases 里找到
 
-​	从**1.0.2**版本开始，key也开始支持自定义构成了，但依旧是以三维度为核心的构建方法。
+## 缓存入门
 
-## 多引擎适配存储
+第一步： 编写业务类
 
-![引擎](image/index/engine.png)
+```java
+/**
+ * 模拟简单业务类
+ */
+public class UserService {
+    private static final Map<String, User> dao = new HashMap<>();
 
-​	提供**【内置】**， **【Redis】**，**【二级缓存】**三种缓存引擎选择，同时支持自定义缓存引擎，便捷开发。
+    // 构造三条模拟数据
+    static {
+        dao.put("username1", new User("username1", 18, "这个家伙很懒"));
+        dao.put("username2", new User("username2", 19, "这个家伙很懒"));
+        dao.put("username3", new User("username3", 20, "这个家伙很懒"));
+    }
 
-​	存储引擎和
+    @EasyCache
+    public User getOne(String username) {
+        return dao.get(username);
+    }
 
-​	EasyCache提供了Inner，Redis，Level2三种引擎其中Inner引擎作为默认引擎，Level2基于多引擎引擎实现本地＋远程缓存。
+}
+```
 
-## 自定义增强
+注：在getOne方法上使用了@EasyCache注解，其作用是将getOne方法中的参数username当作缓存Key，将方法返回值User当作数据存储在存储引擎中。
 
-![处理器](image/index/postprocess.png)
+第二步：获取代理类
 
-​	EasyCache拥有一套独立的**自定义增强处理器**，可以为每个方法实现个性化增强，系统自带了一套随机缓存时长，缓存异常转换处理器，在缓存增强的同时实现了代码健壮性增强。
+```java
+/**
+ * 测试类
+ */
+public class Application {
 
-​	在缓存增强的同时，EasyCache还能以方法级别指定个性化增强组件，在组件中即可阻断Key或是进行修改等操作，具有强大的扩展性。
+    public static void main(String[] args) {
+        // 创建基于注解实现的EasyCache
+        AnnotationEasyCache cache = new AnnotationEasyCache();
 
-> 猪皮恶霸
+        // 模拟业务类
+        UserService userService = new UserService();
+
+        // 代理增强
+        userService = (UserService) cache.proxy(userService);
+
+        System.out.println("第一次调用：" + userService.getOne("username1"));
+
+        System.out.println("第二次调用：" + userService.getOne("username1"));
+
+    }
+}
+```
+
+## 运行结果
+
+启动Application后控制台打印如下...截取此过程部分日志
+
+```bash
+2022-12-01 21:56:24.282 [main] DEBUG c.k.e.c.h.MinRandomTimerPostProcess - 【getOne】 随机过期时间 69，单位 DAYS，最小系数 0.7
+2022-12-01 21:56:24.305 [main] DEBUG c.k.easycache.method.MethodEasyCache - 缓存 [ky-cache]-[getOne()]-{"username":"username1"}-[]，源数据加载，并写入缓存 User(username=username1, age=18, signature=这个家伙很懒)
+2022-12-01 21:56:24.306 [main] DEBUG c.k.e.p.a.AbstractEasyCacheMethod - 缓存方法执行 [getOne]
+2022-12-01 21:56:24.311 [main] DEBUG c.k.e.c.a.handler.TimerWithExecution - 【执行耗时-正常】：72 ms
+第一次调用：User(username=username1, age=18, signature=这个家伙很懒)
+
+2022-12-01 21:56:24.313 [main] DEBUG c.k.easycache.method.MethodEasyCache - 缓存 [ky-cache]-[getOne()]-{"username":"username1"}-[]，存在 User(username=username1, age=18, signature=这个家伙很懒)
+2022-12-01 21:56:24.313 [main] DEBUG c.k.e.p.a.AbstractEasyCacheMethod - 缓存方法执行 [getOne]
+2022-12-01 21:56:24.313 [main] DEBUG c.k.e.c.a.handler.TimerWithExecution - 【执行耗时-正常】：2 ms
+第二次调用：User(username=username1, age=18, signature=这个家伙很懒)
+```
+
+## 缓存删除
+
+第一步：关联删除注解，在UserService中添加更新方法
+
+```java
+@EasyCache(removes = {
+  @Remove(methodName = "getOne", prams = {
+    @Param(name = "username",ref = "user.username")
+  })
+})
+public void updateByUsername(User user) {
+  dao.put(user.getUsername(), user);
+}
+```
+
+注：Remove注解可以实现删除指定方法产生的缓存，此处即删除getOne方法中username和updateByUsername方法中user.username字段相同的缓存。
+
+第二步：删除缓存
+
+```java
+System.out.println("第一次调用：" + userService.getOne("username1"));
+
+System.out.println("更新数据：" + userService.updateByUsername(User.builder().username("username1").age(20).build()));
+
+// 异步删除，等待一秒钟后获取
+TimeUnit.SECONDS.sleep(1);
+System.out.println("第二次调用：" + userService.getOne("username1"));
+```
+
+## 运行结果
+
+启动Application后控制台打印如下...截取此过程部分日志
+
+```bash
+2022-12-01 22:23:46.858 [main] DEBUG c.k.e.c.h.MinRandomTimerPostProcess - 【getOne】 随机过期时间 68，单位 DAYS，最小系数 0.7
+2022-12-01 22:23:46.883 [main] DEBUG c.k.easycache.method.MethodEasyCache - 缓存 [ky-cache]-[getOne()]-{"username":"username1"}-[]，源数据加载，并写入缓存 User(username=username1, age=18, signature=这个家伙很懒)
+2022-12-01 22:23:46.884 [main] DEBUG c.k.e.p.a.AbstractEasyCacheMethod - 缓存方法执行 [getOne]
+2022-12-01 22:23:46.887 [main] DEBUG c.k.e.c.a.handler.TimerWithExecution - 【执行耗时-正常】：73 ms
+第一次调用：User(username=username1, age=18, signature=这个家伙很懒)
+
+2022-12-01 22:23:46.906 [main] DEBUG c.k.e.p.a.AbstractEasyCacheMethod - 原始方法执行 [updateByUsername]
+2022-12-01 22:23:46.910 [main] DEBUG c.k.e.c.a.handler.TimerWithExecution - 【执行耗时-正常】：4 ms
+更新数据：true
+2022-12-01 22:23:46.912 [ky-pool-0] INFO  c.k.e.key.AbstractEasyCacheKey - 解析生成默认key [ky-cache]-[getOne()]-{}-[]
+2022-12-01 22:23:46.913 [ky-pool-0] DEBUG c.k.easycache.cache.AbstractCache - 删除缓存 [ky-cache]-[getOne()]-{"username":"username1"}-[]
+
+2022-12-01 22:23:47.919 [main] DEBUG c.k.e.c.h.MinRandomTimerPostProcess - 【getOne】 随机过期时间 68，单位 DAYS，最小系数 0.7
+2022-12-01 22:23:47.919 [main] DEBUG c.k.easycache.method.MethodEasyCache - 缓存 [ky-cache]-[getOne()]-{"username":"username1"}-[]，源数据加载，并写入缓存 User(username=username1, age=20, signature=null)
+2022-12-01 22:23:47.919 [main] DEBUG c.k.e.p.a.AbstractEasyCacheMethod - 缓存方法执行 [getOne]
+2022-12-01 22:23:47.919 [main] DEBUG c.k.e.c.a.handler.TimerWithExecution - 【执行耗时-正常】：2 ms
+第二次调用：User(username=username1, age=20, signature=null)
+```
+
+注：EasyCache异步删除缓存，所以在上面的案例中更新缓存后等待一秒钟后继续调用getOne方法。
+
+更多示例参考高级用法
