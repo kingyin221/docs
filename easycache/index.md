@@ -160,9 +160,9 @@ System.out.println("第二次调用：" + userService.getOne("username1"));
 
 ```xml
 <dependency>
-		<groupId>club.kingyin</groupId>
-		<artifactId>easycache-spring-boot-starter</artifactId>
-		<version>1.1.2</version>
+	<groupId>club.kingyin</groupId>
+	<artifactId>easycache-spring-boot-starter</artifactId>
+	<version>1.1.2</version>
 </dependency>
 ```
 
