@@ -8,7 +8,7 @@
 
 新建一个Maven工程，并引入EasyCache依赖
 
-```
+```xml
 <dependency>
     <groupId>club.kingyin</groupId>
     <artifactId>easycache</artifactId>
@@ -143,5 +143,68 @@ System.out.println("第二次调用：" + userService.getOne("username1"));
 ```
 
 注：EasyCache异步删除缓存，所以在上面的案例中更新缓存后等待一秒钟后继续调用getOne方法。
+
+更多示例参考高级用法
+
+---
+
+# SpringBoot 方式快速入门
+
+本文档将演示如何应用 EasyCache 在SpringBoot项目进行缓存增强。 本例将在本地SpringBoot项目中创建测试类并完成缓存查询和更新操作。
+
+## 创建工程
+
+需要安装 JDK 8 及以上
+
+新建一个SpringBoot工程，并引入EasyCache Starter依赖
+
+```xml
+<dependency>
+		<groupId>club.kingyin</groupId>
+		<artifactId>easycache-spring-boot-starter</artifactId>
+		<version>1.1.2</version>
+</dependency>
+```
+
+注：最新版本可用从 https://gitee.com/kingyinOS/easycache-spring-boot-starter/releases 里找到
+
+## 缓存入门
+
+注：SpringBoot使用方式和EasyCache使用方式完全相同，无需任何改动，在包含@Component源注解的类方法上直接使用注解即可！
+
+步骤：业务类增强
+
+```java
+/**
+ * 模拟简单业务类
+ */
+@Service
+public class UserService {
+    private static final Map<String, User> dao = new HashMap<>();
+
+    // 构造三条模拟数据
+    static {
+        dao.put("username1", new User("username1", 18, "这个家伙很懒"));
+        dao.put("username2", new User("username2", 19, "这个家伙很懒"));
+        dao.put("username3", new User("username3", 20, "这个家伙很懒"));
+    }
+
+    @EasyCache
+    public User getOne(String username) {
+        return dao.get(username);
+    }
+
+    @EasyCache(removes = {
+            @Remove(methodName = "getOne", prams = {
+                    @Param(name = "username",ref = "user.username")
+            })
+    })
+    public Boolean updateByUsername(User user) {
+        dao.put(user.getUsername(), user);
+        return true;
+    }
+
+}
+```
 
 更多示例参考高级用法
