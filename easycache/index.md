@@ -1,8 +1,8 @@
-# EasyCache 方式快速入门
+## EasyCache 方式快速入门
 
 本文档将演示如何应用 EasyCache 在Java项目进行缓存增强。 本例将在本地Maven项目中创建测试类并完成缓存查询和更新操作。
 
-## 创建工程
+### 创建工程
 
 需要安装 JDK 8 及以上 和 Maven 3 以上
 
@@ -18,7 +18,7 @@
 
 注：最新版本可用从 https://gitee.com/kingyinOS/easycache/releases 里找到
 
-## 缓存入门
+### 缓存入门
 
 第一步： 编写业务类
 
@@ -72,7 +72,7 @@ public class Application {
 }
 ```
 
-## 运行结果
+### 运行结果
 
 启动Application后控制台打印如下...截取此过程部分日志
 
@@ -89,7 +89,7 @@ public class Application {
 第二次调用：User(username=username1, age=18, signature=这个家伙很懒)
 ```
 
-## 缓存删除
+### 缓存删除
 
 第一步：关联删除注解，在UserService中添加更新方法
 
@@ -118,7 +118,7 @@ TimeUnit.SECONDS.sleep(1);
 System.out.println("第二次调用：" + userService.getOne("username1"));
 ```
 
-## 运行结果
+### 运行结果
 
 启动Application后控制台打印如下...截取此过程部分日志
 
@@ -148,11 +148,11 @@ System.out.println("第二次调用：" + userService.getOne("username1"));
 
 ---
 
-# SpringBoot 方式快速入门
+## SpringBoot 方式快速入门
 
 本文档将演示如何应用 EasyCache 在SpringBoot项目进行缓存增强。 本例将在本地SpringBoot项目中创建测试类并完成缓存查询和更新操作。
 
-## 创建工程
+### 创建工程
 
 需要安装 JDK 8 及以上
 
@@ -160,15 +160,15 @@ System.out.println("第二次调用：" + userService.getOne("username1"));
 
 ```xml
 <dependency>
-	<groupId>club.kingyin</groupId>
-	<artifactId>easycache-spring-boot-starter</artifactId>
-	<version>1.1.2</version>
+    <groupId>club.kingyin</groupId>
+    <artifactId>easycache-spring-boot-starter</artifactId>
+    <version>1.1.2</version>
 </dependency>
 ```
 
 注：最新版本可用从 https://gitee.com/kingyinOS/easycache-spring-boot-starter/releases 里找到
 
-## 缓存入门
+### 缓存入门
 
 注：SpringBoot使用方式和EasyCache使用方式完全相同，无需任何改动，在包含@Component源注解的类方法上直接使用注解即可！
 
