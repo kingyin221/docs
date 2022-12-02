@@ -17,7 +17,7 @@ EasyCache从上到下分为两部分组成
 
 参见：
 
-![EasyCache流程-导出](./image/EasyCache流程-导出.png)
+![EasyCache流程-导出](./image/EasyCache.png)
 
 ## 基础模型
 
