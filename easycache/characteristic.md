@@ -1,4 +1,4 @@
-## 多维模块化Key
+## 模块化Key
 
 EasyCache 框架的基本用法在「快速入门」章节中已经说明，这里主要介绍缓存服务的一些特性。
 
@@ -34,6 +34,14 @@ EasyCache 框架的基本用法在「快速入门」章节中已经说明，这�
 ## 缓存引擎
 
 EasyCache 支持自定义缓存引擎，并且系统默认实现了三种引擎。
+
+| 类型            | 名称         |
+| --------------- | ------------ |
+| InnerCache      | 内置引擎     |
+| RedisCache      | 远程引擎     |
+| ~~Level2Cache~~ | 二级缓存引擎 |
+
+注：二级缓存已废弃，将在未来版本中重构
 
 ### 内置缓存引擎-Inner
 
@@ -80,7 +88,7 @@ JedisPoolConfig config = new JedisPoolConfig();
 config.setMinEvictableIdleTime(Duration.ofMillis(60000));
 config.setTimeBetweenEvictionRuns(Duration.ofMillis(30000));
 config.setMaxWait(Duration.ofMillis(100000));
-RedisCache redis = new RedisCache.Builder()
+RedisCache engine = new RedisCache.Builder()
   .host("127.0.0.1").port(6379)
   .config(config)
   .build();
@@ -90,8 +98,6 @@ AnnotationEasyCache cache = new AnnotationEasyCache(engine,Serializer.GSON);
 ### 自定义引擎
 
 创建类继承`CacheAdapter`并实现抽象方法即可完成自定义缓存引擎
-
-注：二级缓存已废弃
 
 ## 异步删除
 
@@ -108,6 +114,65 @@ EasyCache 提供了异常转换过滤器，默认实现了以下三种异常过�
 | NetworkExceptionFilter     | 网络异常过滤器 | 当且仅当发生网络异常时，不写入缓存，其他异常都写入缓存（可以有效的避免网络波动） |
 
 注：除了系统实现的异常过滤器，还支持自定义异常过滤器并以注解的方式加入缓存流程，其主要实现来源于`AnnotationInvokeExceptionHandler`
+
+异常转换需要配合过滤器和结果执行器共同完成，过滤器链路负责分析筛选异常，对选中的异常进行结果转换，默认情况下的结果转换是`OriginalResultConverter` （返回原对象）即不做处理
+
+### 异常过滤
+
+方式一：在EasyCache注解中定义
+
+```java
+    @EasyCache(exception = {
+            @InvokeException(filter = NetworkExceptionFilter.class)
+    })
+    public User getOne() throws SocketTimeoutException {
+        throw new SocketTimeoutException();
+    }
+```
+
+方式二：直接在方法上指定
+
+```java
+    @InvokeException(filter = NetworkExceptionFilter.class)
+    public User getOne() throws SocketTimeoutException {
+        throw new SocketTimeoutException();
+    }
+```
+
+注：二者的区别在于前者可以定义多个过滤器，而后置只能定义一个过滤器，**后者的优先级高于前者**！
+
+### 结果转换
+
+该特殊由InvokeException的属性result决定
+
+使用方式
+
+第一步：创建自定义结果转换器
+
+```java
+public class EmptyUser implements ResultConverter {
+    // 返回空对象
+    @Override
+    public Object conversion(Object object) {
+        return new User();
+    }
+}
+```
+
+第二步：在InvokeException使用
+
+```java
+@InvokeException(filter = NetworkExceptionFilter.class, result = EmptyUser.class)
+public User getOne() throws SocketTimeoutException {
+    throw new SocketTimeoutException();
+}
+```
+
+注：异常过滤器在实际使用中需要自定义，并且确保只使用一个异常过滤器！
+
+运行结果
+
+> 返回 User(username=null, age=null, signature=null)
 
 ## 动态过期策略
 
