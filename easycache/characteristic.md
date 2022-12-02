@@ -31,6 +31,58 @@ EasyCache 框架的基本用法在「快速入门」章节中已经说明，这�
     }
 ```
 
+外部使用，Module注解和MethodName可以控制Key的模块名和方法名，优先级高于在EasyCache中使用
+
+```java
+    @Module("ky-user")
+		@MethodName("getUser")
+    @EasyCache(module = "ky-test",methodName = "getOne")
+    public User userTest(int id, @Ignore String username) {
+        System.out.println("无返回值方法："+id+" "+username);
+    }
+```
+
+注：这里的最终模块名和方法名分别是`ky-user`和`getUser`，参数仅有`id`一个，`username`忽略
+
+### 自定义Key
+
+EasyCache提供了自定义Key格式的服务
+
+第一步：创建Key继承`MethodEasyCacheKey`
+
+```java
+public class KingyinKey extends MethodEasyCacheKey {
+    @Override
+    public EasyCacheKey parse(String sources) {
+        return super.parse(sources);
+    }
+
+    @Override
+    public String coalescence() {
+        return super.coalescence();
+    }
+}
+```
+
+第二步：使用Key
+
+```java
+cache.setCacheMethodKeyAdapter(new CacheMethodKeyAdapter() {
+    @Override
+    public EasyCacheKey parse(CacheMethod sources) {
+        return new KingyinKey.Builder().build(sources);
+    }
+});
+```
+
+Lambda形式
+
+```java
+cache.setCacheMethodKeyAdapter(sources -> new KingyinKey.Builder().build(sources));
+```
+
+
+
 ## 缓存引擎
 
 EasyCache 支持自定义缓存引擎，并且系统默认实现了三种引擎。
