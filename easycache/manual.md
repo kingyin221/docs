@@ -84,6 +84,7 @@ CachePostProcess主要发生在Invoke之后（即调用结束），在此部分�
 - removes：关联删除缓存
 - params：方法参数
 - cache：是否缓存
+- context：局部上下文
 
 ### @Module
 
@@ -122,6 +123,12 @@ CachePostProcess主要发生在Invoke之后（即调用结束），在此部分�
 
 - filter：异常过滤器
 - result：结果转换器
+
+### @Context
+
+- type：CTX静态类
+- func：方法名
+- name：上下文参数名设定
 
 
 

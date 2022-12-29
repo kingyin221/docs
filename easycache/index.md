@@ -12,7 +12,7 @@
 <dependency>
     <groupId>club.kingyin</groupId>
     <artifactId>easycache</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 
@@ -162,7 +162,7 @@ System.out.println("第二次调用：" + userService.getOne("username1"));
 <dependency>
     <groupId>club.kingyin</groupId>
     <artifactId>easycache-spring-boot-starter</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.4</version>
 </dependency>
 ```
 

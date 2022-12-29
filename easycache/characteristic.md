@@ -239,3 +239,47 @@ public User getOne(String username) {
 }
 ```
 
+## 上下文参数
+
+EasyCache 1.0.4 版本新增了上下文装载组件，可通过全局配置获取静态上下文参数，上下文参数和key参数合并组成缓存的全局参数，context=@Context配置可作为此项目的局部配置（仅对当前方法生效），为了便于书写，还提供了一种全局配置的方式可供选择。
+
+上下文参数可以参与缓存构建和移除，其引用方法为 `${参数}.属性.属性...`
+
+```java
+// 例如
+@Param(ref = "${context}.userInfo.username")
+```
+
+使用上下文参数需要避免和文关键词同名，否则可能会造成一些位置的异常
+
+上下文关键词：`context`
+
+#### 局部上下文
+
+```java
+// type: 上下文静态类
+// name: 上下文参数名
+// func: 静态方法名
+// 配置上下文之后即可在param中使用${name}使用上下文参数解析
+@EasyCache(context = @Context(type = UserService.class, name = "ctx"), params = @Param(ref = "${ctx}.name"))
+public String getUserInfo(String username, Integer id) throws InterruptedException {
+    Thread.sleep(3000);
+    return username;
+}
+```
+
+#### 全局上下文
+
+```java
+// 全局配置
+CacheConfiguration.set(Config.CONTEXT, UserService.class);
+// 静态方法配置，默认get（非必须）
+CacheConfiguration.set(Config.CONTEXT_NAME, Config.CONTEXT_GET);
+```
+
+### Starter 全局上下文
+
+```
+
+```
+

@@ -114,3 +114,27 @@ port：端口，默认6379
     minIdle: 10
 ```
 
+### 全局上下文配置
+
+通过配置全局上下文使得缓存可以用上下文中获取参数，并协同方法参数构建缓存Key
+
+Maven项目配置
+
+```java
+// 全局配置
+CacheConfiguration.set(Config.CONTEXT, UserService.class);
+// 静态方法配置，默认get（非必须）
+CacheConfiguration.set(Config.CONTEXT_NAME, Config.CONTEXT_GET);
+```
+
+Boot项目配置
+
+```yaml
+  context:
+    # type:指静态CTX类的全限定名 例如 club.kingyin.test.ApplicationContext
+    type: club.kingyin.test.ApplicationContext
+    # name:指ApplicationContext类中的静态方法名 默认是 "get"
+    # 注意：CTX的静态方法必须是public 否则会出现异常
+    func: get
+```
+
